@@ -1,5 +1,6 @@
-<!-- Make the main canvas -->
+<!-- make the main canvas -->
 <canvas id = "gc" width = "400" height = "400"></canvas>
+
 
 <!--start the script-->
 <script>
@@ -24,7 +25,9 @@ saveY = 0;
 //boolean for paused
 paused = false;
 //game speed increment
-increment = 15;
+speed = 10;
+//counter for incrementing game speed
+counter = 0;
 
 //called when the screen loads
 window.onload=function()
@@ -35,64 +38,110 @@ window.onload=function()
 	context = canvas.getContext("2d");
 	//make a listener for keydown and call the keyPush function
 	document.addEventListener("keydown",keyPush);
-	//update 15 times for every second
-	setInterval(game,1000/increment);
+	//play the game
+	playGame()
+}
+
+//caller function to game
+//this function will be called throughout the game to update the speed
+function playGame()
+{
+	game()
+	//setInterval(game, 1000/speed);
 }
 
 //function for running the game
 function game()
 {
-	//
-	positionX+=xSpeed;
-	positionY+=ySpeed;
-	if(positionX<0)
+	//check to see if the game is paused
+	//if not paused...
+	if (paused === false)
 	{
-		positionX=tc-1;
-	}
-	if(positionX>tc-1)
-	{
-		positionX=0;
-	}
-	if(positionY<0)
-	{
-		positionY=tc-1;
-	}
-	if(positionY>tc-1)
-	{
-		positionY=0;
-	}
 	
-	context.fillStyle="black";
-	context.fillRect(0,0,canvas.width,canvas.height);
-	
-	context.fillStyle="lime";
-	for(var i=0; i<trail.length; i++)
-	{
-		context.fillRect(trail[i].x*gs,trail[i].y*gs,gs-2,gs-2);
-		if(trail[i].x==positionX && trail[i].y==positionY)
+		positionX+=xSpeed;
+		positionY+=ySpeed;
+		if(positionX<0)
 		{
-			tail = 5;
+			positionX=tc-1;
 		}
+		if(positionX>tc-1)
+		{
+			positionX=0;
+		}
+		if(positionY<0)
+		{
+			positionY=tc-1;
+		}
+		if(positionY>tc-1)
+		{
+			positionY=0;
+		}
+		
+		context.fillStyle="black";
+		context.fillRect(0,0,canvas.width,canvas.height);
+		
+		context.fillStyle="lime";
+		for(var i=0; i<trail.length; i++)
+		{
+			context.fillRect(trail[i].x*gs,trail[i].y*gs,gs-2,gs-2);
+			if(trail[i].x==positionX && trail[i].y==positionY)
+			{
+				tail = 5;
+			}
+		}
+	
+		trail.push({x:positionX,y:positionY});
+	
+		while(trail.length>tail)
+		{
+			trail.shift();
+		}	
+	
+		//apple is eaten
+		if(ax==positionX && ay==positionY)
+		{
+			//add one to the tail
+			tail++;
+			
+			//increment the counter
+			counter ++;
+			
+			//increment the speed for every 2 apples eaten
+			if (counter % 2 == 0)
+			{
+				//increment the speed
+				speed++;
+			}
+			
+			//get a random new point for the apple
+			ax=Math.floor(Math.random()*tc); //x-coordinate
+			ay=Math.floor(Math.random()*tc); //y-coordinate
+			
+		}
+		
+		//place the new apple
+		context.fillStyle="red";
+		context.fillRect(ax*gs,ay*gs,gs-2,gs-2);
+		
+		//call game after one second divided by the speed
+		setTimeout(function() { game(); }, 1000/speed);
+		
 	}
-	
-	trail.push({x:positionX,y:positionY});
-	
-	while(trail.length>tail)
+	//if the game is paused
+	else
 	{
-		trail.shift();
-	}	
-	
-	//apple is eaten
-	if(ax==positionX && ay==positionY)
-	{
-		tail++;
-		ax=Math.floor(Math.random()*tc);
-		ay=Math.floor(Math.random()*tc);
+		//blank out a portion of the screen
+		context.fillStyle="black";
+		context.fillRect(canvas.width/4, canvas.height/4, canvas.width/2, canvas.height/2);
+		//write text to signify the game is paused
+		context.fillStyle = "white";
+		context.textAlign = "center";
+		context.font = "30px Arial";
+		context.fillText("Paused", 200, 200); 
+		
+		setTimeout(function() { game(); }, 1000/15);
+		
 	}
-	
-	context.fillStyle="red";
-	context.fillRect(ax*gs,ay*gs,gs-2,gs-2);
-	
 }
 
 //determine which button was pressed
