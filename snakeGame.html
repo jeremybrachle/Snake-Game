@@ -1,124 +1,155 @@
-<canvas id="gc" width="400" height="400"></canvas>
+<!-- Make the main canvas -->
+<canvas id = "gc" width = "400" height = "400"></canvas>
 
+<!--start the script-->
 <script>
-window.onload=function()
-{
-	canv=document.getElementById("gc");
-	ctx=canv.getContext("2d");
-	document.addEventListener("keydown",keyPush);
-	setInterval(game,1000/15);
-}
 
-px=py=10;
-gs=20;
-tc=20;
-ax=ay=15
-xv=yv=0;
+//variables:
+//positions
+positionX = positionY = 10;
+
+gs = 20;
+tc = 20;
+ax = ay = 15;
+
+//speeds
+xSpeed = ySpeed = 0;
+//array for holding the trail behind the snake
 trail=[];
+//tail length
 tail = 5;
+//variables for saving the speeds in each direction
 saveX = 0;
 saveY = 0;
-var paused = false;
+//boolean for paused
+paused = false;
+//game speed increment
+increment = 15;
 
+//called when the screen loads
+window.onload=function()
+{
+	//get the canvas
+	canvas = document.getElementById("gc");
+	//set up the context
+	context = canvas.getContext("2d");
+	//make a listener for keydown and call the keyPush function
+	document.addEventListener("keydown",keyPush);
+	//update 15 times for every second
+	setInterval(game,1000/increment);
+}
+
+//function for running the game
 function game()
 {
-	px+=xv;
-	py+=yv;
-	if(px<0)
+	//
+	positionX+=xSpeed;
+	positionY+=ySpeed;
+	if(positionX<0)
 	{
-		px=tc-1;
+		positionX=tc-1;
 	}
-	if(px>tc-1)
+	if(positionX>tc-1)
 	{
-		px=0;
+		positionX=0;
 	}
-	if(py<0)
+	if(positionY<0)
 	{
-		py=tc-1;
+		positionY=tc-1;
 	}
-	if(py>tc-1)
+	if(positionY>tc-1)
 	{
-		py=0;
+		positionY=0;
 	}
 	
-	ctx.fillStyle="black";
-	ctx.fillRect(0,0,canv.width,canv.height);
+	context.fillStyle="black";
+	context.fillRect(0,0,canvas.width,canvas.height);
 	
-	ctx.fillStyle="lime";
+	context.fillStyle="lime";
 	for(var i=0; i<trail.length; i++)
 	{
-		ctx.fillRect(trail[i].x*gs,trail[i].y*gs,gs-2,gs-2);
-		if(trail[i].x==px && trail[i].y==py)
+		context.fillRect(trail[i].x*gs,trail[i].y*gs,gs-2,gs-2);
+		if(trail[i].x==positionX && trail[i].y==positionY)
 		{
 			tail = 5;
 		}
 	}
 	
-	trail.push({x:px,y:py});
+	trail.push({x:positionX,y:positionY});
 	
 	while(trail.length>tail)
 	{
 		trail.shift();
 	}	
 	
-	<!-- apple is eaten -->
-	if(ax==px && ay==py)
+	//apple is eaten
+	if(ax==positionX && ay==positionY)
 	{
 		tail++;
 		ax=Math.floor(Math.random()*tc);
 		ay=Math.floor(Math.random()*tc);
 	}
 	
-	ctx.fillStyle="red";
-	ctx.fillRect(ax*gs,ay*gs,gs-2,gs-2);
+	context.fillStyle="red";
+	context.fillRect(ax*gs,ay*gs,gs-2,gs-2);
 	
 }
 
+//determine which button was pressed
 function keyPush(evt)
 {
-
+	//switch on the keyCode that is passed
 	switch(evt.keyCode)
 	{
-	
-		case 37:
-		case 65:
+		//left direction
+		case 37: //(left arrow)
+		case 65: //(A)
 			console.log("left");
-			xv=-1;
-			yv=0;
+			xSpeed=-1;
+			ySpeed=0;
 			break;
-		case 38:
-		case 87:
+		//up direction
+		case 38: //(up arrow)
+		case 87: //(W)
 			console.log("up");
-			xv=0;
-			yv=-1;
+			xSpeed=0;
+			ySpeed=-1;
 			break;
-		case 39:
-		case 68:
+		//right direction
+		case 39: //(right arrow)
+		case 68: //(D)
 			console.log("right");
-			xv=1;
-			yv=0;
+			xSpeed=1;
+			ySpeed=0;
 			break;
-			
-		case 40:
-		case 83:
+		//down direction
+		case 40: //(down arrow)
+		case 83: //(S)
 			console.log("down");
-			xv=0;
-			yv=1;
+			xSpeed=0;
+			ySpeed=1;
 			break;
 		
+		//pause the game
 		case 27:
-			console.log("paused");
+			console.log("Game Paused");
+			//set the boolean to be true
 			paused = true;
-			saveX = xv;
-			saveY = yv;
-			xv = yv = 0;
+			//save the current speeds
+			saveX = xSpeed;
+			saveY = ySpeed;
+			//now make the snake stop moving
+			xSpeed = ySpeed = 0;
 			break;
+		
+		//un-pause the game
 		case 13:
-			console.log("un-paused");
+			console.log("Game Resumed");
+			//make sure the game has been paused		
 			if (paused === true)
 			{
-				xv = saveX;
-				yv = saveY;
+				xSpeed = saveX;
+				ySpeed = saveY;
 				paused = false;
 				saveX = saveY = 0;
 			}
@@ -127,3 +158,4 @@ function keyPush(evt)
 }
 
 </script>
+<!--end the script-->
